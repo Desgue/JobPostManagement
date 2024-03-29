@@ -10,8 +10,8 @@ type Controller interface {
 }
 
 type CompanyController struct {
-	CompanyStore *CompanyStore
-	JobsStore    *JobStore
+	CompanyService *CompanyService
+	JobService     *JobService
 }
 
 func (h *CompanyController) RegisterRoutes(mux *http.ServeMux) {
