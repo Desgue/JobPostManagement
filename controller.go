@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type Controller interface {
 	RegisterRoutes(mux *http.ServeMux)
@@ -10,8 +13,8 @@ type CompanyController struct {
 }
 
 func (h *CompanyController) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/companies", h.GetCompanies)
-	mux.HandleFunc("/company/{id}", h.GetCompany)
+	mux.HandleFunc("GET /companies", h.GetCompanies)
+	mux.HandleFunc("GET /company/{id}", h.GetCompany)
 }
 
 func (c CompanyController) GetCompanies(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +22,8 @@ func (c CompanyController) GetCompanies(w http.ResponseWriter, r *http.Request) 
 }
 
 func (c CompanyController) GetCompany(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Getting company"))
+	id := r.PathValue("id")
+	w.Write([]byte(fmt.Sprintf("Getting company %s", id)))
 }
 
 type JobController struct {
@@ -40,19 +44,23 @@ func (c JobController) PostJobDraft(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c JobController) UpdateJob(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Updating job"))
+	id := r.PathValue("id")
+	w.Write([]byte(fmt.Sprintf("Updating Job with ID %s", id)))
 }
 
 func (c JobController) PublishJob(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Publishing job"))
+	id := r.PathValue("id")
+	w.Write([]byte(fmt.Sprintf("Publishing Job with ID %s", id)))
 }
 
 func (c JobController) ArchiveJob(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Archiving job"))
+	id := r.PathValue("id")
+	w.Write([]byte(fmt.Sprintf("Archiving Job with ID %s", id)))
 }
 
 func (c JobController) DeleteJobDraft(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Deleting a job draft"))
+	id := r.PathValue("id")
+	w.Write([]byte(fmt.Sprintf("Deleting Job with ID %s", id)))
 }
 
 func (c JobController) GetFeed(w http.ResponseWriter, r *http.Request) {
