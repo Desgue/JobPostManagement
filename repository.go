@@ -26,10 +26,12 @@ func NewJobStore(conn string) *JobStore {
 	return &JobStore{conn: conn}
 }
 
+// GetFeed queries a S3 bucket and return a json file with all the jobs that are published
 func (s *JobStore) GetFeed() ([]Job, error) {
 	return []Job{}, nil
 }
 
+// All the other methods will query the database directly
 func (s *JobStore) GetJob(id string) (Job, error) {
 	return Job{}, nil
 }

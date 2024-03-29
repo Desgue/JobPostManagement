@@ -10,6 +10,8 @@ type Controller interface {
 }
 
 type CompanyController struct {
+	CompanyStore *CompanyStore
+	JobsStore    *JobStore
 }
 
 func (h *CompanyController) RegisterRoutes(mux *http.ServeMux) {
@@ -64,5 +66,7 @@ func (c JobController) DeleteJobDraft(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c JobController) GetFeed(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("Getting feed"))
+
 }
