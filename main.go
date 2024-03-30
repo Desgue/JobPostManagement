@@ -23,8 +23,21 @@ func init() {
 }
 
 func main() {
-	companiesController := &CompanyController{}
-	jobsController := &JobController{}
+	postgresStore, err := NewPostgresStore(ConnStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer postgresStore.Close()
+
+	companyStore := NewCompanyStore(postgresStore)
+	jobStore := NewJobStore(postgresStore)
+
+	companyService := NewCompanyService(companyStore)
+	jobService := NewJobService(jobStore)
+
+	companiesController := NewCompanyController(companyService)
+	jobsController := NewJobController(jobService)
+
 	server := NewAPIServer(Port, companiesController, jobsController)
-	server.Start()
+	log.Fatal(server.Start())
 }

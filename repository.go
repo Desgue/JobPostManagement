@@ -34,28 +34,45 @@ func (s *PostgresStore) mustPing() {
 
 // CompanyStore is responsible for interacting with the postgress database and handling the company data
 type CompanyStore struct {
-	db *PostgresStore
+	postgres *PostgresStore
 }
 
 func NewCompanyStore(db *PostgresStore) *CompanyStore {
-	return &CompanyStore{db: db}
+	return &CompanyStore{postgres: db}
 }
 
 func (s *CompanyStore) GetCompanies() ([]Company, error) {
-	return []Company{}, nil
+	var companies []Company
+	rows, err := s.postgres.db.Query("SELECT * FROM companies")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var company Company
+		rows.Scan(&company.Id, &company.Name, &company.CreatedAt, &company.UpdatedAt)
+		companies = append(companies, company)
+	}
+	return companies, nil
 }
 
 func (s *CompanyStore) GetCompany(id string) (Company, error) {
-	return Company{}, nil
+	var company Company
+	err := s.postgres.db.QueryRow("SELECT * FROM companies WHERE id = $1", id).Scan(&company.Id, &company.Name, &company.CreatedAt, &company.UpdatedAt)
+	if err != nil {
+		return Company{}, err
+	}
+	return company, nil
 }
 
 // JobStore is responsible for interacting with the postgress database and handling the job data
 type JobStore struct {
-	db *PostgresStore
+	postgres *PostgresStore
 }
 
 func NewJobStore(db *PostgresStore) *JobStore {
-	return &JobStore{db: db}
+	return &JobStore{postgres: db}
 }
 
 // GetFeed queries a S3 bucket and return a json file with all the jobs that are published
@@ -64,15 +81,12 @@ func (s *JobStore) GetFeed() ([]Job, error) {
 }
 
 // All the other methods will query the database directly
-func (s *JobStore) GetJob(id string) (Job, error) {
-	return Job{}, nil
-}
 
-func (s *JobStore) CreateJob(job Job) error {
+func (s *JobStore) CreateJob(job JobRequest) error {
 	return nil
 }
 
-func (s *JobStore) UpdateJob(id string, job Job) error {
+func (s *JobStore) UpdateJob(id string, job JobRequest) error {
 	return nil
 }
 

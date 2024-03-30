@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -10,25 +11,52 @@ type Controller interface {
 }
 
 type CompanyController struct {
-	CompanyService *CompanyService
-	JobService     *JobService
+	service *CompanyService
 }
 
+func NewCompanyController(companyService *CompanyService) *CompanyController {
+	return &CompanyController{service: companyService}
+}
 func (h *CompanyController) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /companies", h.GetCompanies)
 	mux.HandleFunc("GET /company/{id}", h.GetCompany)
 }
 
 func (c CompanyController) GetCompanies(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Getting companies"))
+	companies, err := c.service.GetCompanies()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(companies); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 func (c CompanyController) GetCompany(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	w.Write([]byte(fmt.Sprintf("Getting company %s", id)))
+	company, err := c.service.GetCompany(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(company); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 type JobController struct {
+	JobService *JobService
+}
+
+func NewJobController(jobService *JobService) *JobController {
+	return &JobController{JobService: jobService}
 }
 
 func (c *JobController) RegisterRoutes(mux *http.ServeMux) {
@@ -42,7 +70,17 @@ func (c *JobController) RegisterRoutes(mux *http.ServeMux) {
 }
 
 func (c JobController) PostJobDraft(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Posting job draft"))
+	var job JobRequest
+	if err := json.NewDecoder(r.Body).Decode(&job); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := c.JobService.CreateJob(job); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte("Job draft created"))
 }
 
 func (c JobController) UpdateJob(w http.ResponseWriter, r *http.Request) {

@@ -17,12 +17,6 @@ func NewAPIServer(addr string, controllers ...Controller) *APIServer {
 
 func (s *APIServer) Start() error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
-	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
-	})
 	for _, controller := range s.Controllers {
 		controller.RegisterRoutes(mux)
 	}

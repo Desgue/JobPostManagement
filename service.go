@@ -30,15 +30,14 @@ func (s *JobService) GetFeed() ([]Job, error) {
 	return s.JobStore.GetFeed()
 }
 
-func (s *JobService) GetJob(id string) (Job, error) {
-	return s.JobStore.GetJob(id)
-}
-
-func (s *JobService) CreateJob(job Job) error {
+func (s *JobService) CreateJob(job JobRequest) error {
+	if err := job.Validate(); err != nil {
+		return err
+	}
 	return s.JobStore.CreateJob(job)
 }
 
-func (s *JobService) UpdateJob(id string, job Job) error {
+func (s *JobService) UpdateJob(id string, job JobRequest) error {
 	return s.JobStore.UpdateJob(id, job)
 }
 
