@@ -75,7 +75,8 @@ func (c JobController) PostJobDraft(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if err := c.JobService.CreateJob(job); err != nil {
+	fmt.Println(job)
+	if err := c.JobService.CreateJob(&job); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -90,6 +91,7 @@ func (c JobController) UpdateJob(w http.ResponseWriter, r *http.Request) {
 
 func (c JobController) PublishJob(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	c.JobService.PublishJob(id)
 	w.Write([]byte(fmt.Sprintf("Publishing Job with ID %s", id)))
 }
 
@@ -105,6 +107,14 @@ func (c JobController) DeleteJobDraft(w http.ResponseWriter, r *http.Request) {
 
 func (c JobController) GetFeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte("Getting feed"))
+	jobs, err := c.JobService.GetFeed()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := json.NewEncoder(w).Encode(jobs); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 }

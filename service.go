@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // CompanyService handles the business logic for the company domain
 type CompanyService struct {
 	CompanyStore *CompanyStore
@@ -30,10 +32,13 @@ func (s *JobService) GetFeed() ([]Job, error) {
 	return s.JobStore.GetFeed()
 }
 
-func (s *JobService) CreateJob(job JobRequest) error {
+func (s *JobService) CreateJob(job *JobRequest) error {
+	job.Status = JobStatusDraft
 	if err := job.Validate(); err != nil {
 		return err
 	}
+	fmt.Println(job)
+
 	return s.JobStore.CreateJob(job)
 }
 

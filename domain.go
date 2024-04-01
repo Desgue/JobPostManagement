@@ -41,23 +41,24 @@ const (
 )
 
 type Job struct {
-	Id          string
-	CompanyId   string
-	Title       string
-	Description string
-	Location    string
-	Notes       string
-	Status      JobStatus
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	Id          string    `json:"id"`
+	CompanyId   string    `json:"companyId"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Location    string    `json:"location"`
+	Notes       string    `json:"notes"`
+	Status      JobStatus `json:"status"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 type JobRequest struct {
-	Title       string
-	CompanyId   string
-	Description string
-	Location    string
-	Status      JobStatus
+	Title       string    `json:"title"`
+	CompanyId   string    `json:"companyId"`
+	Description string    `json:"description"`
+	Location    string    `json:"location"`
+	Notes       string    `json:"notes"`
+	Status      JobStatus `json:"status"`
 }
 
 func (j *JobRequest) Validate() error {

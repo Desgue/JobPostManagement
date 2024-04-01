@@ -77,12 +77,36 @@ func NewJobStore(db *PostgresStore) *JobStore {
 
 // GetFeed queries a S3 bucket and return a json file with all the jobs that are published
 func (s *JobStore) GetFeed() ([]Job, error) {
-	return []Job{}, nil
+	var jobs []Job
+	rows, err := s.postgres.db.Query("SELECT * FROM jobs")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var job Job
+		rows.Scan(&job.Id, &job.CompanyId, &job.Title, &job.Description, &job.Location, &job.Notes, &job.Status, &job.CreatedAt, &job.UpdatedAt)
+		jobs = append(jobs, job)
+	}
+
+	return jobs, nil
 }
 
 // All the other methods will query the database directly
 
-func (s *JobStore) CreateJob(job JobRequest) error {
+func (s *JobStore) CreateJob(job *JobRequest) error {
+	_, err := s.postgres.db.Exec(
+		"INSERT INTO jobs (company_id, title, description, location,notes, status) VALUES ($1, $2, $3, $4, $5, $6)",
+		job.CompanyId,
+		job.Title,
+		job.Description,
+		job.Location,
+		job.Notes,
+		job.Status,
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -91,6 +115,7 @@ func (s *JobStore) UpdateJob(id string, job JobRequest) error {
 }
 
 func (s *JobStore) PublishJob(id string) error {
+	s.postgres.db.Exec("UPDATE jobs SET status = 'published' WHERE id = $1", id)
 	return nil
 }
 
