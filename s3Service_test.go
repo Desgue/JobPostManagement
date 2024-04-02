@@ -20,6 +20,7 @@ var (
 	cont       *container
 	ctx        context.Context
 	bucketName = "test"
+	opt        S3Config
 )
 
 func TestMain(m *testing.M) {
@@ -31,7 +32,15 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	defer cont.localstack.Terminate(ctx)
-	client, err := NewS3Client(cont.url, "us-east-1", "test", "test", "test")
+	opt = S3Config{
+		url:       cont.url,
+		region:    "us-east-1",
+		accessKey: "test",
+		secretKey: "test",
+		token:     "test",
+	}
+
+	client, err := NewS3Client(opt)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -48,7 +57,7 @@ func TestMain(m *testing.M) {
 	os.Exit(exitVal)
 }
 func TestNewS3Client(t *testing.T) {
-	client, err := NewS3Client(cont.url, "us-east-1", "test", "test", "test")
+	client, err := NewS3Client(opt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +74,7 @@ func TestNewS3Client(t *testing.T) {
 }
 
 func TestAddFileToBucket(t *testing.T) {
-	client, err := NewS3Client(cont.url, "us-east-1", "test", "test", "test")
+	client, err := NewS3Client(opt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,7 +113,7 @@ func TestAddFileToBucket(t *testing.T) {
 
 // The principle function to be tested, that will actually be implemented in the service, all the other functions were to setup the buckets to this test
 func TestReadFileFromBucket(t *testing.T) {
-	client, err := NewS3Client(cont.url, "us-east-1", "test", "test", "test")
+	client, err := NewS3Client(opt)
 	if err != nil {
 		t.Fatal(err)
 	}

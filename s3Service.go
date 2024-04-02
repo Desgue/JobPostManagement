@@ -11,26 +11,31 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+type S3Config struct {
+	url       string
+	region    string
+	accessKey string
+	secretKey string
+	token     string
+}
+
 func NewS3Client(
-	url,
-	region,
-	accessKey,
-	secretKey,
-	token string,
+	opt S3Config,
 ) (*s3.Client, error) {
+
 	customResolver := aws.EndpointResolverWithOptionsFunc(
 		func(service, region string, opts ...interface{}) (aws.Endpoint, error) {
 			return aws.Endpoint{
 				PartitionID:   "aws",
-				URL:           url,
-				SigningRegion: region,
+				URL:           opt.url,
+				SigningRegion: opt.region,
 			}, nil
 		})
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(region),
+		config.WithRegion(opt.region),
 		config.WithEndpointResolverWithOptions(customResolver),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, token)),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(opt.accessKey, opt.secretKey, opt.token)),
 	)
 	if err != nil {
 		log.Println(err)
