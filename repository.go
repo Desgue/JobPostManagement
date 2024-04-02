@@ -92,6 +92,24 @@ func (s *JobStore) GetFeed() ([]Job, error) {
 	return jobs, nil
 }
 
+func (s *JobStore) GetJob(id string) (Job, error) {
+	var job Job
+	err := s.postgres.db.QueryRow("SELECT * FROM jobs WHERE id = $1", id).Scan(&job.Id,
+		&job.CompanyId,
+		&job.Title,
+		&job.Description,
+		&job.Location,
+		&job.Notes,
+		&job.Status,
+		&job.CreatedAt,
+		&job.UpdatedAt,
+	)
+	if err != nil {
+		return Job{}, err
+	}
+	return job, nil
+}
+
 // All the other methods will query the database directly
 
 func (s *JobStore) CreateJob(job *JobRequest) error {

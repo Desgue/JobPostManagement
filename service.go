@@ -1,9 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 )
 
 // CompanyService handles the business logic for the company domain
@@ -56,17 +58,63 @@ func (s *JobService) CreateJob(job *JobRequest) error {
 }
 
 func (s *JobService) UpdateJob(id string, job JobRequest) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return fmt.Errorf("invalid job id")
+	}
+	if err := job.Validate(); err != nil {
+		return err
+	}
+
 	return s.JobStore.UpdateJob(id, job)
 }
 
 func (s *JobService) PublishJob(id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return fmt.Errorf("invalid job id")
+	}
+	job, err := s.JobStore.GetJob(id)
+	if err != nil && err == sql.ErrNoRows {
+		return fmt.Errorf("job not found")
+	}
+	if err != nil {
+		return err
+	}
+	if job.Status != JobStatusDraft {
+		return fmt.Errorf("job status must be draft to be published")
+	}
+
 	return s.JobStore.PublishJob(id)
 }
 
 func (s *JobService) ArchiveJob(id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return fmt.Errorf("invalid job id")
+	}
+	job, err := s.JobStore.GetJob(id)
+	if err != nil && err == sql.ErrNoRows {
+		return fmt.Errorf("job not found")
+	}
+	if err != nil {
+		return err
+	}
+	if job.Status != JobStatusPublished {
+		return fmt.Errorf("job status must be published to be archived")
+	}
+
 	return s.JobStore.ArchiveJob(id)
 }
 
 func (s *JobService) DeleteJob(id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return fmt.Errorf("invalid job id")
+	}
+	_, err := s.JobStore.GetJob(id)
+	if err != nil && err == sql.ErrNoRows {
+		return fmt.Errorf("job not found")
+	}
+	if err != nil {
+		return err
+	}
+
 	return s.JobStore.DeleteJob(id)
 }
