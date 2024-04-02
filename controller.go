@@ -97,11 +97,21 @@ func (c JobController) PublishJob(w http.ResponseWriter, r *http.Request) {
 
 func (c JobController) ArchiveJob(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	err := c.JobService.ArchiveJob(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.Write([]byte(fmt.Sprintf("Archiving Job with ID %s", id)))
 }
 
 func (c JobController) DeleteJobDraft(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	err := c.JobService.DeleteJob(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.Write([]byte(fmt.Sprintf("Deleting Job with ID %s", id)))
 }
 

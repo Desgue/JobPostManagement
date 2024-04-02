@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -35,14 +34,14 @@ func NewJobService(jobStore *JobStore, s3Client *s3.Client) *JobService {
 }
 
 func (s *JobService) GetFeed() ([]Job, error) {
-	var feed []Job
-	output, err := ReadFileFromBucket("JobPostings", s.s3Client, "published_jobs.json")
-	if err != nil {
-		return nil, err
-	}
-	if err := json.Unmarshal(output, &feed); err != nil {
-		return nil, err
-	}
+	/* 	var feed []Job
+	   	output, err := ReadFileFromBucket("JobPostings", s.s3Client, "published_jobs.json")
+	   	if err != nil {
+	   		return nil, err
+	   	}
+	   	if err := json.Unmarshal(output, &feed); err != nil {
+	   		return nil, err
+	   	} */
 	return s.JobStore.GetFeed()
 }
 

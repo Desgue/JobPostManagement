@@ -115,7 +115,7 @@ func (s *JobStore) UpdateJob(id string, job JobRequest) error {
 }
 
 func (s *JobStore) PublishJob(id string) error {
-	_, err := s.postgres.db.Exec("UPDATE jobs SET status = 'published' WHERE id = $1", id)
+	_, err := s.postgres.db.Exec("UPDATE jobs SET status = 'published', updated_at = now() WHERE id = $1", id)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func (s *JobStore) PublishJob(id string) error {
 }
 
 func (s *JobStore) ArchiveJob(id string) error {
-	_, err := s.postgres.db.Exec("UPDATE jobs SET status = 'archived' WHERE id = $1", id)
+	_, err := s.postgres.db.Exec("UPDATE jobs SET status = 'archived', updated_at = now() WHERE id = $1", id)
 	if err != nil {
 		return err
 	}
