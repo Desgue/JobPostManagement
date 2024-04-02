@@ -33,11 +33,11 @@ func TestMain(m *testing.M) {
 	}
 	defer cont.localstack.Terminate(ctx)
 	opt = S3Config{
-		url:       cont.url,
-		region:    "us-east-1",
-		accessKey: "test",
-		secretKey: "test",
-		token:     "test",
+		Url:       cont.url,
+		Region:    "us-east-1",
+		AccessKey: "test",
+		SecretKey: "test",
+		Token:     "test",
 	}
 
 	client, err := NewS3Client(opt)

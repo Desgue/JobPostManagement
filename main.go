@@ -10,6 +10,7 @@ import (
 var (
 	Port    string
 	ConnStr string
+	s3Cfg   S3Config
 )
 
 func init() {
@@ -19,6 +20,13 @@ func init() {
 
 	Port = os.Getenv("PORT")
 	ConnStr = os.Getenv("CONN_STR")
+	s3Cfg = S3Config{
+		Url:       os.Getenv("S3_URL"),
+		Region:    os.Getenv("S3_REGION"),
+		AccessKey: os.Getenv("S3_ACCESS_KEY"),
+		SecretKey: os.Getenv("S3_SECRET_KEY"),
+		Token:     os.Getenv("S3_TOKEN"),
+	}
 
 }
 
@@ -32,8 +40,13 @@ func main() {
 	companyStore := NewCompanyStore(postgresStore)
 	jobStore := NewJobStore(postgresStore)
 
+	s3Client, err := NewS3Client(s3Cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	companyService := NewCompanyService(companyStore)
-	jobService := NewJobService(jobStore)
+	jobService := NewJobService(jobStore, s3Client)
 
 	companiesController := NewCompanyController(companyService)
 	jobsController := NewJobController(jobService)

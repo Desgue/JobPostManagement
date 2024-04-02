@@ -12,11 +12,11 @@ import (
 )
 
 type S3Config struct {
-	url       string
-	region    string
-	accessKey string
-	secretKey string
-	token     string
+	Url       string
+	Region    string
+	AccessKey string
+	SecretKey string
+	Token     string
 }
 
 func NewS3Client(
@@ -27,15 +27,15 @@ func NewS3Client(
 		func(service, region string, opts ...interface{}) (aws.Endpoint, error) {
 			return aws.Endpoint{
 				PartitionID:   "aws",
-				URL:           opt.url,
-				SigningRegion: opt.region,
+				URL:           opt.Url,
+				SigningRegion: opt.Region,
 			}, nil
 		})
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(opt.region),
+		config.WithRegion(opt.Region),
 		config.WithEndpointResolverWithOptions(customResolver),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(opt.accessKey, opt.secretKey, opt.token)),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(opt.AccessKey, opt.SecretKey, opt.Token)),
 	)
 	if err != nil {
 		log.Println(err)

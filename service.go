@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+)
 
 // CompanyService handles the business logic for the company domain
 type CompanyService struct {
@@ -22,10 +26,11 @@ func (s *CompanyService) GetCompany(id string) (Company, error) {
 // JobService handles the business logic for the job domain
 type JobService struct {
 	JobStore *JobStore
+	s3Client *s3.Client
 }
 
-func NewJobService(jobStore *JobStore) *JobService {
-	return &JobService{JobStore: jobStore}
+func NewJobService(jobStore *JobStore, s3Client *s3.Client) *JobService {
+	return &JobService{JobStore: jobStore, s3Client: s3Client}
 }
 
 func (s *JobService) GetFeed() ([]Job, error) {
