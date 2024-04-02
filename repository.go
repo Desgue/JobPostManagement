@@ -115,14 +115,25 @@ func (s *JobStore) UpdateJob(id string, job JobRequest) error {
 }
 
 func (s *JobStore) PublishJob(id string) error {
-	s.postgres.db.Exec("UPDATE jobs SET status = 'published' WHERE id = $1", id)
+	_, err := s.postgres.db.Exec("UPDATE jobs SET status = 'published' WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s *JobStore) ArchiveJob(id string) error {
+	_, err := s.postgres.db.Exec("UPDATE jobs SET status = 'archived' WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s *JobStore) DeleteJob(id string) error {
+	_, err := s.postgres.db.Exec("DELETE FROM jobs WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
