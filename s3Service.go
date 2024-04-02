@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"log"
 
@@ -40,4 +41,41 @@ func NewS3Client(
 		o.UsePathStyle = true
 	})
 	return client, nil
+}
+
+func ReadFileFromBucket(bucketName string, client *s3.Client, fileName string) ([]byte, error) {
+	output, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: &bucketName,
+		Key:    &fileName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(output.Body)
+	return buf.Bytes(), nil
+}
+
+func ListBucketFiles(bucketName string, client *s3.Client) ([]string, error) {
+	var files []string
+	output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: &bucketName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, obj := range output.Contents {
+		files = append(files, *obj.Key)
+	}
+	return files, nil
+}
+
+func AddFileToBucket(bucketName string, client *s3.Client, fileName string, fileContent []byte) error {
+	body := bytes.NewReader(fileContent)
+	_, err := client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket: &bucketName,
+		Key:    &fileName,
+		Body:   body,
+	})
+	return err
 }
